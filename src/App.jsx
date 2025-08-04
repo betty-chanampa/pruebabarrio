@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect, useRef } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [tiempo, setTiempo] = useState(0);
+  const [activo, setActivo] = useState(false);
+  const intervalo = useRef(null);
+
+  useEffect(() => {
+    if (activo) {
+      intervalo.current = setInterval(() => {
+        setTiempo((t) => t + 1);
+      }, 1000);
+    } else {
+      clearInterval(intervalo.current);
+    }
+
+    return () => clearInterval(intervalo.current);
+  }, [activo]);
+
+  const formatearTiempo = (segundos) => {
+    const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+    const sec = String(segundos % 60).padStart(2, "0");
+    return `${min}:${sec}`;
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h1>Cronómetro</h1>
+      <h2>{formatearTiempo(tiempo)}</h2>
+      <button onClick={() => setActivo(!activo)}>
+        {activo ? "Pausar" : "Iniciar"}
+      </button>
+      <button onClick={() => { setTiempo(0); setActivo(false); }}>
+        Reiniciar
+      </button>
+    </div>
+  );
 }
 
-export default App
+export default App;
